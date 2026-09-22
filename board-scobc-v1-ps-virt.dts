@@ -8,3 +8,12 @@
     model = "Space Cubics SC-OBC Module V1";
     compatible = "sc,scobc-v1", "xlnx,versal-virt";
 };
+
+&spi1 {
+	/delete-node/ spi1_flash0@0;
+
+	scobc_sp: scobc-sp@0 {
+		compatible = "scobc-sp";
+		reg = <0 0>;
+	};
+};
