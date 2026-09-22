@@ -1,0 +1,10 @@
+/*
+ * SC-OBC V1 QEMU hardware description
+ */
+
+#include "board-versal-xcve2302-ps-virt.dts"
+
+/ {
+    model = "Space Cubics SC-OBC Module V1";
+    compatible = "sc,scobc-v1", "xlnx,versal-virt";
+};
