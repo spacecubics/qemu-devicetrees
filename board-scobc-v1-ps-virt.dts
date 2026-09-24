@@ -9,6 +9,7 @@
     compatible = "sc,scobc-v1", "xlnx,versal-virt";
 };
 
+/* Connect safety processor instead of flash */
 &spi1 {
 	/delete-node/ spi1_flash0@0;
 
@@ -16,4 +17,44 @@
 		compatible = "scobc-sp";
 		reg = <0 0>;
 	};
+};
+
+/* SPI0 is unused */
+&spi0 {
+    /delete-node/ spi0_flash0@0;
+};
+
+/* Connect correct QSPI flash setup */
+&pmc_qspi_0 {
+        /delete-node/ qspi_flash_lcs_lb@0;
+        /delete-node/ qspi_flash_lcs_ub@0;
+        /delete-node/ qspi_flash_ucs_lb@0;
+        /delete-node/ qspi_flash_ucs_ub@0;
+
+        DI_SPI_FLASH(0, scobc_flash_lower,
+                     "s25fs512s", 0x04000000, 0x0 0x0)
+
+        DI_SPI_FLASH(1, scobc_flash_upper,
+                     "s25fs512s", 0x04000000, 0x1 0x0)
+};
+
+/* Disconnect all OSPI devices */
+&ospi {
+    /delete-node/ ospi_flash_lcs_lb@0;
+    /delete-node/ ospi_flash_lcs_ub@0;
+    /delete-node/ ospi_flash_ucs_lb@0;
+    /delete-node/ ospi_flash_ucs_ub@0;
+};
+
+/* Configure as non-removable eMMC instead of SD card */
+&sdhci1 {
+    is-mmc = <1>;
+    xlnx,has-cd = <0>;
+    xlnx,has-power = <0>;
+    xlnx,has-wp = <0>;
+};
+
+/* Delete second unused pysical ethernet node */
+&{/mdio} {
+    /delete-node/ phy@2;
 };
