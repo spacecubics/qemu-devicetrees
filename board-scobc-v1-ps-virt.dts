@@ -26,6 +26,9 @@
 
 /* Connect correct QSPI flash setup */
 &pmc_qspi_0 {
+		/* Dual stack mode */
+		xlnx,qspi-mode = <1>;
+
         /delete-node/ qspi_flash_lcs_lb@0;
         /delete-node/ qspi_flash_lcs_ub@0;
         /delete-node/ qspi_flash_ucs_lb@0;
