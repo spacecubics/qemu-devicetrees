@@ -1,0 +1,216 @@
+/*
+ * SC-OBC V1 Safety Processor QEMU hardware description
+ *
+ * Microchip IGLOO2 (M2GL090) with a Mi-V RV32IMC soft core running Zephyr.
+ * Mirrors the Zephyr scobc_v1_miv board. Boot the firmware with e.g.:
+ *
+ *   qemu-system-riscv32 -M riscv-fdt -hw-dtb board-scobc-v1-sp-virt.dtb \
+ *       -device loader,file=zephyr.elf,cpu-num=0 -nographic
+ *
+ * Space Cubics IP cores without a QEMU model yet are described as their
+ * real compatible with an "unimplemented-device" fallback. Once a model
+ * exists, it is picked up via the first compatible string instead.
+ */
+
+/dts-v1/;
+
+/ {
+	model = "Space Cubics SC-OBC Module V1 Safety Processor";
+	compatible = "sc,scobc-v1-sp";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		sp_cpu: cpu@0 {
+			device_type = "cpu";
+			compatible = "microchip,miv", "rv32-riscv-cpu";
+			reg = <0>;
+			#interrupt-cells = <1>;
+
+			/*
+			 * RV32IMC_Zicsr_Zifencei, machine mode only. Disable
+			 * everything the rv32 base CPU enables by default.
+			 */
+			a = <0>;
+			f = <0>;
+			d = <0>;
+			s = <0>;
+			u = <0>;
+			h = <0>;
+			mmu = <0>;
+			zawrs = <0>;
+			zfa = <0>;
+			zba = <0>;
+			zbb = <0>;
+			zbc = <0>;
+			zbs = <0>;
+			zicbom = <0>;
+			zicboz = <0>;
+			zihintntl = <0>;
+			zihintpause = <0>;
+			zihpm = <0>;
+			sstc = <0>;
+			svadu = <0>;
+
+			/* Execute in place from eNVM */
+			resetvec = <0x60000000>;
+		};
+	};
+
+	soc {
+		compatible = "qemu:system-memory";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		/*
+		 * Zephyr describes a 64 MiB PLIC window, which overlaps CoreUART
+		 * and the machine timer. One hart with a single M-mode context
+		 * only uses registers up to 0x201000, so limit it to 16 MiB.
+		 */
+		plic: interrupt-controller@10000000 {
+			compatible = "sifive,plic-1.0.0", "riscv.sifive.plic";
+			reg = <0x10000000 0x01000000>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+
+			/* Single hart, machine mode context only */
+			hart-config = "M";
+			num-sources = <32>;
+			num-priorities = <1>;
+			priority-base = <0x0>;
+			pending-base = <0x1000>;
+			enable-base = <0x2000>;
+			enable-stride = <0x80>;
+			context-base = <0x200000>;
+			context-stride = <0x1000>;
+			aperture-size = <0x01000000>;
+
+			/* Outputs: S-mode external (unused), M-mode external */
+			interrupts-extended = <&sp_cpu 9>, <&sp_cpu 11>;
+		};
+
+		/* Zephyr console, polled. First serial port (serial0). */
+		uart0: uart@11001000 {
+			compatible = "microchip,coreuart";
+			reg = <0x11001000 0x1000>;
+		};
+
+		/* SiFive CLINT layout: mtimecmp at +0x0, mtime at +0x7ff8 */
+		mtimer: timer@12004000 {
+			compatible = "riscv.aclint.mtimer";
+			reg = <0x12004000 0x8000>;
+			timebase-freq = <25000000>;
+			interrupts-extended = <&sp_cpu 7>;
+		};
+
+		tcm0: memory@20000000 {
+			compatible = "qemu:memory-region";
+			reg = <0x20000000 0x20000>;
+			qemu,ram = <1>;
+		};
+
+		/* eNVM0 and eNVM1 form one contiguous 512 KiB data window */
+		envm: memory@60000000 {
+			compatible = "qemu:memory-region";
+			reg = <0x60000000 0x80000>;
+			qemu,ram = <1>;
+		};
+
+		envm0_ctrl: flash-controller@60080000 {
+			compatible = "microchip,igloo2-envm-controller",
+				     "unimplemented-device";
+			reg = <0x60080000 0x200>;
+			qemu,name = "envm0-ctrl";
+			qemu,size = <0x200>;
+		};
+
+		envm1_ctrl: flash-controller@600c0000 {
+			compatible = "microchip,igloo2-envm-controller",
+				     "unimplemented-device";
+			reg = <0x600c0000 0x200>;
+			qemu,name = "envm1-ctrl";
+			qemu,size = <0x200>;
+		};
+
+		system_register: system-register@80000000 {
+			compatible = "sc,system";
+			reg = <0x80000000 0x1000>;
+
+			/* IP v1.0.0, clean build, Revision B Developer Grade */
+			sc,ip-version = <0x01000000>;
+			sc,git-hash = <0x00000000>;
+			sc,board-id = <0x3>;
+		};
+
+		spi_target: spi-target@81000000 {
+			compatible = "sc,spi-target", "unimplemented-device";
+			reg = <0x81000000 0x1000>;
+			qemu,name = "sc-spi-target";
+			qemu,size = <0x1000>;
+		};
+
+		mppc: mppc@81001000 {
+			compatible = "sc,mppc", "unimplemented-device";
+			reg = <0x81001000 0x1000>;
+			qemu,name = "sc-mppc";
+			qemu,size = <0x1000>;
+		};
+
+		i2c0: i2c@82000000 {
+			compatible = "sc,i2c";
+			reg = <0x82000000 0x10000>;
+			interrupt-parent = <&plic>;
+			interrupts = <20 1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			/* TMP175, register compatible with the TMP105 model */
+			temp0: tmp175@4c {
+				compatible = "ti,tmp175", "tmp105";
+				reg = <0x4c>;
+			};
+
+			temp1: tmp175@4d {
+				compatible = "ti,tmp175", "tmp105";
+				reg = <0x4d>;
+			};
+
+			temp2: tmp175@4e {
+				compatible = "ti,tmp175", "tmp105";
+				reg = <0x4e>;
+			};
+
+			/*
+			 * Inputs are chN-bus-mv and chN-shunt-uv, changeable at
+			 * runtime with qom-set. Bus voltages are the nominal rails.
+			 */
+			cvmon0: ina3221@40 {
+				/* CH1: 5V0_SYS, CH2: 5V0_VER_PS, CH3: 5V0_VER_PL */
+				compatible = "ti,ina3221";
+				reg = <0x40>;
+				ti,ch1-bus-mv = <5000>;
+				ti,ch2-bus-mv = <5000>;
+				ti,ch3-bus-mv = <5000>;
+			};
+
+			cvmon1: ina3221@41 {
+				/* CH1: 3V3_EXT, CH2: 3V3_VER, CH3: unused */
+				compatible = "ti,ina3221";
+				reg = <0x41>;
+				ti,ch1-bus-mv = <3300>;
+				ti,ch2-bus-mv = <3300>;
+			};
+		};
+
+		/* Optional debug UART, disabled in the Zephyr board by default */
+		uartlite0: serial@8f000000 {
+			compatible = "xlnx,xps-uartlite-1.00.a";
+			reg = <0x8f000000 0x10000>;
+			interrupt-parent = <&plic>;
+			interrupts = <17 1>;
+		};
+	};
+};
