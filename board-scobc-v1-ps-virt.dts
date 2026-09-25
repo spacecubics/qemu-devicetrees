@@ -24,21 +24,21 @@
     /delete-node/ spi0_flash0@0;
 };
 
-/* Connect correct QSPI flash setup */
+/* Connect two stacked QSPI flashes on bus 0 (CS0 and CS1) */
 &pmc_qspi_0 {
-		/* Dual stack mode */
-		xlnx,qspi-mode = <1>;
+    /* Not read by the QEMU model */
+    /delete-property/ xlnx,qspi-mode;
 
-        /delete-node/ qspi_flash_lcs_lb@0;
-        /delete-node/ qspi_flash_lcs_ub@0;
-        /delete-node/ qspi_flash_ucs_lb@0;
-        /delete-node/ qspi_flash_ucs_ub@0;
+    /delete-node/ qspi_flash_lcs_lb@0;
+    /delete-node/ qspi_flash_lcs_ub@0;
+    /delete-node/ qspi_flash_ucs_lb@0;
+    /delete-node/ qspi_flash_ucs_ub@0;
 
-        DI_SPI_FLASH(0, scobc_flash_lower,
-                     "s25fs512s", 0x04000000, 0x0 0x0)
+    DI_SPI_FLASH(0, scobc_flash_lower,
+                 "s25fs512s", 0x04000000, 0x0 0x0)
 
-        DI_SPI_FLASH(1, scobc_flash_upper,
-                     "s25fs512s", 0x04000000, 0x1 0x0)
+    DI_SPI_FLASH(1, scobc_flash_upper,
+                 "s25fs512s", 0x04000000, 0x1 0x0)
 };
 
 /* Disconnect all OSPI devices */
@@ -49,12 +49,15 @@
     /delete-node/ ospi_flash_ucs_ub@0;
 };
 
-/* Configure as non-removable eMMC instead of SD card */
+/*
+ * eMMC mode is selected by attaching the drive at SD index 3, not by
+ * properties. Drop the SD-card properties QEMU does not read.
+ */
 &sdhci1 {
-    is-mmc = <1>;
-    xlnx,has-cd = <0>;
-    xlnx,has-power = <0>;
-    xlnx,has-wp = <0>;
+    /delete-property/ is-mmc;
+    /delete-property/ xlnx,has-cd;
+    /delete-property/ xlnx,has-power;
+    /delete-property/ xlnx,has-wp;
 };
 
 /* Delete second unused pysical ethernet node */
