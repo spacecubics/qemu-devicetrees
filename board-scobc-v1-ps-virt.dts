@@ -9,14 +9,12 @@
     compatible = "sc,scobc-v1", "xlnx,versal-virt";
 };
 
-/* Connect safety processor instead of flash */
+/*
+ * The safety processor sits on SPI1 instead of the flash. It is only
+ * connected in board-scobc-v1-ps-sp-virt.dts.
+ */
 &spi1 {
 	/delete-node/ spi1_flash0@0;
-
-	scobc_sp: scobc-sp@0 {
-		compatible = "scobc-sp";
-		reg = <0 0>;
-	};
 };
 
 /* SPI0 is unused */

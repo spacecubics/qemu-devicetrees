@@ -7,6 +7,11 @@
  *   qemu-system-riscv32 -M riscv-fdt -hw-dtb board-scobc-v1-sp-virt.dtb \
  *       -device loader,file=zephyr.elf,cpu-num=0 -nographic
  *
+ * The MULTI_ARCH build connects the SPI target to SPI1 of the main
+ * processor (board-scobc-v1-ps-sp-virt.dtb) over remote-port. Run both
+ * with the same -machine-path, or pass -chardev socket,id=ps-sp-rp to
+ * both instead.
+ *
  * Space Cubics IP cores without a QEMU model yet are described as their
  * real compatible with an "unimplemented-device" fallback. Once a model
  * exists, it is picked up via the first compatible string instead.
@@ -59,6 +64,14 @@
 			resetvec = <0x60000000>;
 		};
 	};
+
+#ifdef MULTI_ARCH
+	/* Same node name as on the main processor, to share the socket */
+	ps_sp_rp: ps_sp_rp@0 {
+		compatible = "remote-port";
+		chrdev-id = "ps-sp-rp";
+	};
+#endif
 
 	soc {
 		compatible = "qemu:system-memory";
@@ -150,6 +163,10 @@
 			reg = <0x81000000 0x1000>;
 			interrupt-parent = <&plic>;
 			interrupts = <16 1>;
+#ifdef MULTI_ARCH
+			/* Driven by SPI1 of the main processor */
+			remote-ports = <&ps_sp_rp 0>;
+#endif
 		};
 
 		mppc: mppc@81001000 {

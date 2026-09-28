@@ -1,0 +1,28 @@
+/*
+ * SC-OBC V1 QEMU hardware description, with the safety processor
+ *
+ * The MULTI_ARCH build connects SPI1 to the SPI target of the safety
+ * processor QEMU (board-scobc-v1-sp-virt.dtb) over remote-port. Both
+ * sides use the same adaptor node name, so they meet on the socket
+ * qemu-rport-_ps_sp_rp@0 in the common -machine-path.
+ */
+
+#include "board-scobc-v1-ps-virt.dts"
+
+#ifdef MULTI_ARCH
+/ {
+	ps_sp_rp: ps_sp_rp@0 {
+		compatible = "remote-port";
+		chrdev-id = "ps-sp-rp";
+	};
+};
+
+&spi1 {
+	/* SPI target of the safety processor, on its CS0 */
+	scobc_sp: scobc-sp@0 {
+		compatible = "remote-port-ssi";
+		reg = <0 0>;
+		remote-ports = <&ps_sp_rp 0>;
+	};
+};
+#endif
