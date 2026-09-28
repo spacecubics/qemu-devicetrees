@@ -146,10 +146,10 @@
 		};
 
 		spi_target: spi-target@81000000 {
-			compatible = "sc,spi-target", "unimplemented-device";
+			compatible = "sc,spi-target";
 			reg = <0x81000000 0x1000>;
-			qemu,name = "sc-spi-target";
-			qemu,size = <0x1000>;
+			interrupt-parent = <&plic>;
+			interrupts = <16 1>;
 		};
 
 		mppc: mppc@81001000 {
