@@ -170,10 +170,13 @@
 		};
 
 		mppc: mppc@81001000 {
-			compatible = "sc,mppc", "unimplemented-device";
+			compatible = "sc,mppc";
 			reg = <0x81001000 0x1000>;
-			qemu,name = "sc-mppc";
-			qemu,size = <0x1000>;
+			interrupt-parent = <&plic>;
+			interrupts = <2 1>;
+
+			/* IP v1.0.0 */
+			sc,ip-version = <0x01000000>;
 		};
 
 		i2c0: i2c@82000000 {
