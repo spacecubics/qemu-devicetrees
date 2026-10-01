@@ -4,7 +4,8 @@
  * The MULTI_ARCH build connects SPI1 to the SPI target of the safety
  * processor QEMU (board-scobc-v1-sp-virt.dtb) over remote-port. Both
  * sides use the same adaptor node name, so they meet on the socket
- * qemu-rport-_ps_sp_rp@0 in the common -machine-path.
+ * qemu-rport-_ps_sp_rp@0 in the common -machine-path. The PMC instance
+ * must use board-scobc-v1-pmc-sp-virt.dtb.
  */
 
 #include "board-scobc-v1-ps-virt.dts"
@@ -32,6 +33,17 @@
 	 */
 	versal_por: versal_por@0 {
 		compatible = "qemu,reset-device";
+		gpios = <&rp_versal_por_b 0>;
+	};
+
+	/*
+	 * POR resets the whole Versal. Forward POR_B to the PMC instance
+	 * (board-scobc-v1-pmc-sp-virt.dtb), so the ROM and PLM start over.
+	 */
+	rp_pmc_por_b: rp_pmc_por_b@0 {
+		compatible = "remote-port-gpio";
+		remote-ports = <&ps_pmc_rp 32>;
+		num-gpios = <1>;
 		gpios = <&rp_versal_por_b 0>;
 	};
 

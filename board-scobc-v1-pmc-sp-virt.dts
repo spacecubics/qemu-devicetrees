@@ -1,0 +1,29 @@
+/*
+ * SC-OBC V1 PMC QEMU hardware description, with the safety processor
+ *
+ * The PMC instance to run with board-scobc-v1-ps-sp-virt.dtb. The safety
+ * processor drives Versal POR_B, which the main processor QEMU forwards
+ * here, so the PMC instance resets together with it and the ROM and PLM
+ * start over.
+ */
+
+#include "board-versal-xcve2302-pmc-virt.dts"
+
+#ifdef MULTI_ARCH
+/ {
+	/* Versal POR_B, forwarded by the main processor QEMU */
+	rp_pmc_por_b: rp_pmc_por_b@0 {
+		compatible = "remote-port-gpio";
+		remote-ports = <&ps_pmc_rp 32>;
+		gpio-controller;
+		#gpio-cells = <1>;
+		num-gpios = <1>;
+	};
+
+	/* Reset on the release of POR_B, see board-scobc-v1-ps-sp-virt.dts */
+	pmc_por: pmc_por@0 {
+		compatible = "qemu,reset-device";
+		gpios = <&rp_pmc_por_b 0>;
+	};
+};
+#endif
