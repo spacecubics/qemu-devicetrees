@@ -64,4 +64,13 @@
 		remote-ports = <&ps_sp_rp 0>;
 	};
 };
+
+&pmc_gpio {
+	/*
+	 * POR clears the pins, which QEMU otherwise keeps across resets.
+	 * Without this, a stale MIO28 raises Power Cycle Request again
+	 * once software touches the GPIO after the reset.
+	 */
+	por-gpios = <&rp_versal_por_b 0>;
+};
 #endif
