@@ -71,6 +71,23 @@
 		compatible = "remote-port";
 		chrdev-id = "ps-sp-rp";
 	};
+
+	/* MPPC reset to the Versal POR_B pin */
+	rp_versal_por_b: rp_versal_por_b@0 {
+		compatible = "remote-port-gpio";
+		remote-ports = <&ps_sp_rp 1>;
+		num-gpios = <1>;
+		gpios = <&mppc 6>;
+	};
+
+	/* Power Cycle Request from PMC MIO28 */
+	rp_power_cycle_req: rp_power_cycle_req@0 {
+		compatible = "remote-port-gpio";
+		remote-ports = <&ps_sp_rp 2>;
+		gpio-controller;
+		#gpio-cells = <1>;
+		num-gpios = <1>;
+	};
 #endif
 
 	soc {
@@ -177,6 +194,17 @@
 
 			/* IP v1.0.0 */
 			sc,ip-version = <0x01000000>;
+
+			/*
+			 * GPIOs 0-4: power enables, 5: main reset (active high),
+			 * 6: Versal POR_B level
+			 */
+			gpio-controller;
+			#gpio-cells = <1>;
+#ifdef MULTI_ARCH
+			/* Power Cycle Request */
+			gpios = <&rp_power_cycle_req 0>;
+#endif
 		};
 
 		i2c0: i2c@82000000 {

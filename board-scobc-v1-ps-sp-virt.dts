@@ -15,6 +15,33 @@
 		compatible = "remote-port";
 		chrdev-id = "ps-sp-rp";
 	};
+
+	/* Versal POR_B, driven by the MPPC of the safety processor */
+	rp_versal_por_b: rp_versal_por_b@0 {
+		compatible = "remote-port-gpio";
+		remote-ports = <&ps_sp_rp 1>;
+		gpio-controller;
+		#gpio-cells = <1>;
+		num-gpios = <1>;
+	};
+
+	/*
+	 * Versal starts up on the rising edge of POR_B. The reset device
+	 * cannot hold the instance in reset, so reset it when POR_B is
+	 * released instead of while it is asserted.
+	 */
+	versal_por: versal_por@0 {
+		compatible = "qemu,reset-device";
+		gpios = <&rp_versal_por_b 0>;
+	};
+
+	/* PMC MIO28 to the Power Cycle Request input of the MPPC */
+	rp_power_cycle_req: rp_power_cycle_req@0 {
+		compatible = "remote-port-gpio";
+		remote-ports = <&ps_sp_rp 2>;
+		num-gpios = <1>;
+		gpios = <&pmc_gpio 28>;
+	};
 };
 
 &spi1 {
