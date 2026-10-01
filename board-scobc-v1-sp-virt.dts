@@ -80,6 +80,14 @@
 		gpios = <&mppc 6>;
 	};
 
+	/* Boot Memory Select to the boot flash switch of the main processor */
+	rp_boot_mem_sel: rp_boot_mem_sel@0 {
+		compatible = "remote-port-gpio";
+		remote-ports = <&ps_sp_rp 3>;
+		num-gpios = <1>;
+		gpios = <&system_register 3>;
+	};
+
 	/* Power Cycle Request from PMC MIO28 */
 	rp_power_cycle_req: rp_power_cycle_req@0 {
 		compatible = "remote-port-gpio";
@@ -173,6 +181,13 @@
 			sc,ip-version = <0x01000000>;
 			sc,git-hash = <0x00000000>;
 			sc,board-id = <0x3>;
+
+			/*
+			 * GPIOs 0-1: green and red LED, 2: keep-alive,
+			 * 3: Boot Memory Select
+			 */
+			gpio-controller;
+			#gpio-cells = <1>;
 		};
 
 		spi_target: spi-target@81000000 {

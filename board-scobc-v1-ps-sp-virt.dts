@@ -47,6 +47,15 @@
 		gpios = <&rp_versal_por_b 0>;
 	};
 
+	/* Boot Memory Select, driven by the system register of the SP */
+	rp_boot_mem_sel: rp_boot_mem_sel@0 {
+		compatible = "remote-port-gpio";
+		remote-ports = <&ps_sp_rp 3>;
+		gpio-controller;
+		#gpio-cells = <1>;
+		num-gpios = <1>;
+	};
+
 	/* PMC MIO28 to the Power Cycle Request input of the MPPC */
 	rp_power_cycle_req: rp_power_cycle_req@0 {
 		compatible = "remote-port-gpio";
@@ -63,6 +72,11 @@
 		reg = <0 0>;
 		remote-ports = <&ps_sp_rp 0>;
 	};
+};
+
+/* The safety processor selects the boot flash bank */
+&boot_mem_sel {
+	gpios = <&rp_boot_mem_sel 0>;
 };
 
 &pmc_gpio {
