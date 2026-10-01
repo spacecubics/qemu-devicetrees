@@ -22,7 +22,12 @@
     /delete-node/ spi0_flash0@0;
 };
 
-/* Connect two stacked QSPI flashes on bus 0 (CS0 and CS1) */
+/*
+ * The two boot flashes sit behind an analog switch on CS0 of bus 0, which
+ * connects one of them to the QSPI controller. The safety processor drives
+ * the select line, see board-scobc-v1-ps-sp-virt.dts. Without it, bank 0
+ * is selected.
+ */
 &pmc_qspi_0 {
     /* Not read by the QEMU model */
     /delete-property/ xlnx,qspi-mode;
@@ -32,11 +37,20 @@
     /delete-node/ qspi_flash_ucs_lb@0;
     /delete-node/ qspi_flash_ucs_ub@0;
 
-    DI_SPI_FLASH(0, scobc_flash_lower,
-                 "s25fs512s", 0x04000000, 0x0 0x0)
+    boot_mem_sel: boot_mem_sel@0 {
+        compatible = "sc,qspi-mux";
+        #address-cells = <1>;
+        #size-cells = <0>;
+        #bus-cells = <1>;
+        reg = <0x0 0x0>;
 
-    DI_SPI_FLASH(1, scobc_flash_upper,
-                 "s25fs512s", 0x04000000, 0x1 0x0)
+        /* Bank 0 on CS0 of bus 0, bank 1 on CS1 of bus 1 */
+        DI_SPI_FLASH(0, scobc_flash_bank0,
+                     "s25fs512s", 0x04000000, 0x0 0x0)
+
+        DI_SPI_FLASH(1, scobc_flash_bank1,
+                     "s25fs512s", 0x04000000, 0x1 0x1)
+    };
 };
 
 /* Disconnect all OSPI devices */
