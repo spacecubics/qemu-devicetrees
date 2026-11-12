@@ -1,0 +1,6 @@
+#include "board-scobc-v1-sp-virt.dts"
+
+&system_register {
+	/* Revision A Space Grade */
+	sc,board-id = <0x0>;
+};

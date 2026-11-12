@@ -1,0 +1,6 @@
+#include "board-scobc-v1-sp-virt.dts"
+
+&system_register {
+	/* Revision A Developer Grade */
+	sc,board-id = <0x1>;
+};
