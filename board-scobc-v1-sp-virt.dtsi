@@ -2,9 +2,11 @@
  * SC-OBC V1 Safety Processor QEMU hardware description
  *
  * Microchip IGLOO2 (M2GL090) with a Mi-V RV32IMC soft core running Zephyr.
- * Mirrors the Zephyr scobc_v1_miv board. Boot the firmware with e.g.:
+ * Mirrors the Zephyr scobc_v1_miv board. This file has no board-id, which
+ * the board-scobc-v1-[devgrade-]rev{a,b}-sp-virt.dts files set for each
+ * board revision and grade. Boot the firmware with e.g.:
  *
- *   qemu-system-riscv32 -M riscv-fdt -hw-dtb board-scobc-v1-sp-virt.dtb \
+ *   qemu-system-riscv32 -M riscv-fdt -hw-dtb board-scobc-v1-revb-sp-virt.dtb \
  *       -device loader,file=zephyr.elf,cpu-num=0 -nographic
  *
  * The MULTI_ARCH build connects the SPI target to SPI1 of the main
@@ -16,8 +18,6 @@
  * real compatible with an "unimplemented-device" fallback. Once a model
  * exists, it is picked up via the first compatible string instead.
  */
-
-/dts-v1/;
 
 / {
 	model = "Space Cubics SC-OBC Module V1 Safety Processor";
@@ -177,10 +177,9 @@
 			compatible = "sc,system";
 			reg = <0x80000000 0x1000>;
 
-			/* IP v1.0.0, clean build, Revision B Developer Grade */
+			/* IP v1.0.0, clean build */
 			sc,ip-version = <0x01000000>;
 			sc,git-hash = <0x00000000>;
-			sc,board-id = <0x3>;
 
 			/*
 			 * GPIOs 0-1: green and red LED, 2: keep-alive,

@@ -1,4 +1,6 @@
-#include "board-scobc-v1-sp-virt.dts"
+/dts-v1/;
+
+#include "board-scobc-v1-sp-virt.dtsi"
 
 &system_register {
 	/* Revision A Space Grade */

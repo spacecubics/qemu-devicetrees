@@ -1,0 +1,8 @@
+/dts-v1/;
+
+#include "board-scobc-v1-sp-virt.dtsi"
+
+&system_register {
+	/* Revision B Space Grade */
+	sc,board-id = <0x2>;
+};
