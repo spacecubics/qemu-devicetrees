@@ -1,0 +1,8 @@
+/*
+ * SC-OBC V1 Revision A Space Grade QEMU hardware description
+ */
+
+/* Spansion S25FS512S NOR flash */
+#define SCOBC_BOOT_MEMORY "s25fs512s"
+
+#include "board-scobc-v1-ps-virt.dtsi"

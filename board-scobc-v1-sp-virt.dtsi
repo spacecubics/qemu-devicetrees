@@ -10,7 +10,7 @@
  *       -device loader,file=zephyr.elf,cpu-num=0 -nographic
  *
  * The MULTI_ARCH build connects the SPI target to SPI1 of the main
- * processor (board-scobc-v1-ps-sp-virt.dtb) over remote-port. Run both
+ * processor (board-scobc-v1-*-ps-sp-virt.dtb) over remote-port. Run both
  * with the same -machine-path, or pass -chardev socket,id=ps-sp-rp to
  * both instead.
  *

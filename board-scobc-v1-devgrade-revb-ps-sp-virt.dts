@@ -1,0 +1,7 @@
+/*
+ * SC-OBC V1 Revision B Developer Grade QEMU hardware description,
+ * with the safety processor
+ */
+
+#include "board-scobc-v1-devgrade-revb-ps-virt.dts"
+#include "board-scobc-v1-ps-sp-virt.dtsi"

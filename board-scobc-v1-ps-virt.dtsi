@@ -1,6 +1,15 @@
 /*
  * SC-OBC V1 QEMU hardware description
+ *
+ * This file has no boot flash part. The board-scobc-v1-*-ps-virt.dts files
+ * define SCOBC_BOOT_MEMORY for each board and include it. Rev. A has the
+ * same parts in both grades, so board-scobc-v1-reva-ps-virt.dts also
+ * describes the Rev. A developer grade. Rev. B has one per grade.
  */
+
+#ifndef SCOBC_BOOT_MEMORY
+#error "SCOBC_BOOT_MEMORY is not defined, build a board-scobc-v1-*-ps-virt.dts"
+#endif
 
 #include "board-versal-xcve2302-ps-virt.dts"
 
@@ -11,7 +20,7 @@
 
 /*
  * The safety processor sits on SPI1 instead of the flash. It is only
- * connected in board-scobc-v1-ps-sp-virt.dts.
+ * connected in board-scobc-v1-ps-sp-virt.dtsi.
  */
 &spi1 {
 	/delete-node/ spi1_flash0@0;
@@ -25,8 +34,8 @@
 /*
  * The two boot flashes sit behind an analog switch on CS0 of bus 0, which
  * connects one of them to the QSPI controller. The safety processor drives
- * the select line, see board-scobc-v1-ps-sp-virt.dts. Without it, bank 0
- * is selected.
+ * the select line, see board-scobc-v1-ps-sp-virt.dtsi. Without it, bank 0
+ * is selected. Both banks hold the same part, SCOBC_BOOT_MEMORY.
  */
 &pmc_qspi_0 {
     /* Not read by the QEMU model */
@@ -46,10 +55,10 @@
 
         /* Bank 0 on CS0 of bus 0, bank 1 on CS1 of bus 1 */
         DI_SPI_FLASH(0, scobc_flash_bank0,
-                     "s25fs512s", 0x04000000, 0x0 0x0)
+                     SCOBC_BOOT_MEMORY, 0x04000000, 0x0 0x0)
 
         DI_SPI_FLASH(1, scobc_flash_bank1,
-                     "s25fs512s", 0x04000000, 0x1 0x1)
+                     SCOBC_BOOT_MEMORY, 0x04000000, 0x1 0x1)
     };
 };
 

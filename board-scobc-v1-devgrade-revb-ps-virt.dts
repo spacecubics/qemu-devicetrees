@@ -1,0 +1,8 @@
+/*
+ * SC-OBC V1 Revision B Developer Grade QEMU hardware description
+ */
+
+/* Avalanche AS301G208 MRAM */
+#define SCOBC_BOOT_MEMORY "as301g208"
+
+#include "board-scobc-v1-ps-virt.dtsi"
